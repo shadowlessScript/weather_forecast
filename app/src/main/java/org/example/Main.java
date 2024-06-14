@@ -1,14 +1,11 @@
 package org.example;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import java.net.URI;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.util.Map;
-import java.util.Objects;
+import java.util.Arrays;
+
+import org.example.ApiResponse;
+import org.json.simple.JSONObject;
 
 public class Main {
 
@@ -28,34 +25,22 @@ public class Main {
             int apiResponseCode = conn.getResponseCode();
 
             if(apiResponseCode == HttpURLConnection.HTTP_OK){
-                BufferedReader  in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String InputLine;
+                ApiResponse response = new ApiResponse(conn);
 
-                StringBuilder response = new StringBuilder();
+//                System.out.println(response.getJo());
+                System.out.println(Arrays.toString(response.GetResponseKeys()));
+//                System.out.println(response.extractInfo("timezone"));
 
-                while((InputLine = in.readLine()) != null){
-                    response.append(InputLine);
-                }
-                in.close();
-
-//                System.out.println("Api Response: " + response);
-                JSONParser res = new JSONParser();
-                JSONObject jo = (JSONObject) res.parse(response.toString());
-                int le = jo.size();
-                String[] keyName = new String[le];
-
-                int counter = 0;
-                for(Object key: jo.keySet()){
-                    keyName[counter] = key.toString();
-                    counter++;
-                }
+                String[] weatherCode = new String[]{response.extractInfo(
+                        "hourly").toString()};
+                System.out.println(Arrays.toString(weatherCode));
             }else{
                 System.out.printf("Api response failed, response code [ %s ]", Integer.toString(apiResponseCode));
                 System.out.println();
             }
 
-        }catch (Exception URISyntaxException){
-            System.out.println("violates RFC 2396");
+        }catch (Exception e){
+            System.out.println(e.getMessage());
         }
 
     }
